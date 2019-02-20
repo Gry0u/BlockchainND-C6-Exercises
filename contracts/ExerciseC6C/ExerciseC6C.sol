@@ -13,7 +13,6 @@ contract ExerciseC6C {
     /********************************************************************************************/
     /*                                       DATA VARIABLES                                     */
     /********************************************************************************************/
-
     struct Profile {
         string id;
         bool isRegistered;
@@ -30,80 +29,59 @@ contract ExerciseC6C {
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
     /********************************************************************************************/
-
     // No events
-
     /**
     * @dev Constructor
     *      The deploying account becomes contractOwner
     */
-    constructor
-                                (
-                                ) 
-                                public 
-    {
+    constructor() public {
         contractOwner = msg.sender;
     }
 
     /********************************************************************************************/
     /*                                       FUNCTION MODIFIERS                                 */
     /********************************************************************************************/
-
     // Modifiers help avoid duplication of code. They are typically used to validate something
     // before a function is allowed to be executed.
-
     /**
     * @dev Modifier that requires the "ContractOwner" account to be the function caller
     */
-    modifier requireContractOwner()
-    {
+    modifier requireContractOwner() {
         require(msg.sender == contractOwner, "Caller is not contract owner");
         _;
     }
 
-    modifier requireIsCallerAuthorized()
-    {
+    modifier requireIsCallerAuthorized() {
         require(authorizedContracts[msg.sender] == 1, "Caller is not contract owner");
         _;
     }
 
-
     /********************************************************************************************/
     /*                                       UTILITY FUNCTIONS                                  */
     /********************************************************************************************/
-
    /**
     * @dev Check if an employee is registered
     *
     * @return A bool that indicates if the employee is registered
-    */   
-    function isEmployeeRegistered
-                            (
-                                string id
-                            )
-                            external
-                            view
-                            returns(bool)
+    */
+    function isEmployeeRegistered(string id)
+    external
+    view
+    returns(bool)
     {
         return employees[id].isRegistered;
     }
 
-    function authorizeContract
-                            (
-                                address contractAddress
-                            )
-                            external
-                            requireContractOwner
+    function authorizeContract(address contractAddress)
+    external
+    requireContractOwner
     {
         authorizedContracts[contractAddress] = 1;
     }
 
-    function deauthorizeContract
-                            (
-                                address contractAddress
-                            )
-                            external
-                            requireContractOwner
+    function deauthorizeContract(address contractAddress)
+    external
+    requireContractOwner
     {
         delete authorizedContracts[contractAddress];
     }
@@ -112,47 +90,33 @@ contract ExerciseC6C {
     /*                                     SMART CONTRACT FUNCTIONS                             */
     /********************************************************************************************/
 
-    function registerEmployee
-                                (
-                                    string id,
-                                    bool isAdmin,
-                                    address wallet
-                                )
-                                external
-                                requireContractOwner
+    function registerEmployee(string id, bool isAdmin, address wallet)
+    external
+    requireContractOwner
     {
         require(!employees[id].isRegistered, "Employee is already registered.");
 
         employees[id] = Profile({
-                                        id: id,
-                                        isRegistered: true,
-                                        isAdmin: isAdmin,
-                                        sales: 0,
-                                        bonus: 0,
-                                        wallet: wallet
-                                });
+            id: id,
+            isRegistered: true,
+            isAdmin: isAdmin,
+            sales: 0,
+            bonus: 0,
+            wallet: wallet
+        });
     }
 
-    function getEmployeeBonus
-                            (
-                                string id
-                            )
-                            external
-                            view
-                            requireContractOwner
-                            returns(uint256)
+    function getEmployeeBonus(string id)
+    external
+    view
+    requireContractOwner
+    returns(uint256)
     {
         return employees[id].bonus;
     }
 
-    function updateEmployee
-                                (
-                                    string id,
-                                    uint256 sales,
-                                    uint256 bonus
-
-                                )
-                                external
+    function updateEmployee(string id, uint256 sales, uint256 bonus)
+    external
     {
         require(employees[id].isRegistered, "Employee is not registered.");
 
@@ -163,4 +127,3 @@ contract ExerciseC6C {
 
 
 }
-

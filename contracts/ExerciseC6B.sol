@@ -15,29 +15,21 @@ contract ExerciseC6B {
     /********************************************************************************************/
 
 
-    address private contractOwner;                  // Account used to deploy contract
+    address private contractOwner; // Account used to deploy contract
 
-
-    constructor
-                (
-                )
-                public 
-    {
+    constructor() public {
         contractOwner = msg.sender;
     }
-   
+
     /********************************************************************************************/
     /*                                       FUNCTION MODIFIERS                                 */
     /********************************************************************************************/
-
     // Modifiers help avoid duplication of code. They are typically used to validate something
     // before a function is allowed to be executed.
-
     /**
     * @dev Modifier that requires the "ContractOwner" account to be the function caller
     */
-    modifier requireContractOwner()
-    {
+    modifier requireContractOwner() {
         require(msg.sender == contractOwner, "Caller is not contract owner");
         _;
     }
@@ -47,6 +39,5 @@ contract ExerciseC6B {
     /********************************************************************************************/
 
 
-    
-}
 
+}

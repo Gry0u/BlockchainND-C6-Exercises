@@ -10,12 +10,12 @@ import "../../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
 contract ExerciseC6D {
     using SafeMath for uint256; // Allow SafeMath functions to be called for all uint256 types (similar to "prototype" in Javascript)
 
-  
+
     address private contractOwner;                  // Account used to deploy contract
 
 
     // Incremented to add pseudo-randomness at various points
-    uint8 private nonce = 0;    
+    uint8 private nonce = 0;
 
     // Fee to be paid when registering oracle
     uint256 public constant REGISTRATION_FEE = 1 ether;
@@ -51,27 +51,23 @@ contract ExerciseC6D {
     // Flight data persisted forever
     struct FlightStatus {
         bool hasStatus;
-        uint8 status;        
+        uint8 status;
     }
+
     mapping(bytes32 => FlightStatus) flights;
 
 
 
 
-    constructor
-                (
-                )
-                public 
-    {
+    constructor() public {
         contractOwner = msg.sender;
     }
-   
+
     /********************************************************************************************/
     /*                                       FUNCTION MODIFIERS                                 */
     /********************************************************************************************/
 
-    modifier requireContractOwner()
-    {
+    modifier requireContractOwner() {
         require(msg.sender == contractOwner, "Caller is not contract owner");
         _;
     }
@@ -79,17 +75,10 @@ contract ExerciseC6D {
     /********************************************************************************************/
     /*                                     SMART CONTRACT FUNCTIONS                             */
     /********************************************************************************************/
-
     /*********************************** BEGIN: Oracle Registration ***********************************/
-
     // STAGE ONE: ORACLES REGISTER WITH THE SMART CONTRACT
-
     // Register an oracle with the contract
-    function registerOracle
-                            (
-                            )
-                            external
-                            payable
+    function registerOracle() external payable
     {
         // CODE EXERCISE 1: Require registration fee
         /* Enter code here */
@@ -101,40 +90,25 @@ contract ExerciseC6D {
         /* Enter code here */
     }
 
-    function getOracle
-                        (
-                            address account
-                        )
-                        external
-                        view
-                        requireContractOwner
-                        returns(uint8[3])
+    function getOracle(address account)
+    external
+    view
+    requireContractOwner
+    returns(uint8[3])
     {
         return oracles[account];
     }
 
     /************************************ END: Oracle Registration ************************************/
-
-
-
     /************************************ BEGIN: Oracle Data Request ************************************/
-
     // STAGE TWO: ORACLES ARE RANDOMLY CHOSEN TO FETCH INFORMATION
-
-
     // Event fired when flight status request is submitted
     // Oracles track this and if they have a matching index
     // they fetch data and submit a response
     event OracleRequest(uint8 index, string flight, uint256 timestamp);
 
-
     // Generate a request
-    function fetchFlightStatus
-                        (
-                            string flight,
-                            uint256 timestamp                            
-                        )
-                        external
+    function fetchFlightStatus(string flight, uint256 timestamp) external
     {
         // Generate a number between 0 - 9 to determine which oracles may respond
 
@@ -144,10 +118,7 @@ contract ExerciseC6D {
 
         // Generate a unique key for storing the request
         bytes32 key = keccak256(abi.encodePacked(index, flight, timestamp));
-        oracleResponses[key] = ResponseInfo({
-                                                requester: msg.sender,
-                                                isOpen: true
-                                            });
+        oracleResponses[key] = ResponseInfo({ requester: msg.sender, isOpen: true });
 
         // CODE EXERCISE 2: Notify oracles that match the index value that they need to fetch flight status
         /* Enter code here */
@@ -155,25 +126,20 @@ contract ExerciseC6D {
     }
 
     /************************************ END: Oracle Data Request ************************************/
-
-
     /*********************************** BEGIN: Oracle Callback ***********************************/
-
-
     // STAGE THREE: ORACLES SUBMIT INFORMATION
-
     // Called by oracle when a response is available to an outstanding request
     // For the response to be accepted, there must be a pending request that is open
     // and matches one of the three Indexes randomly assigned to the oracle at the
     // time of registration (i.e. uninvited oracles are not welcome)
     function submitOracleResponse
-                        (
-                            uint8 index,
-                            string flight,
-                            uint256 timestamp,
-                            uint8 statusId
-                        )
-                        external
+    (
+        uint8 index,
+        string flight,
+        uint256 timestamp,
+        uint8 statusId
+    )
+    external
     {
         require((oracles[msg.sender][0] == index) || (oracles[msg.sender][1] == index) || (oracles[msg.sender][2] == index), "Index does not match oracle request");
 
@@ -206,47 +172,32 @@ contract ExerciseC6D {
     }
 
     /************************************ END: Oracle Callback ************************************/
-
-
-
-
     /************************************ BEGIN: Utility Functions ************************************/
-
     // Query the status of any flight
-    function viewFlightStatus
-                            (
-                                string flight,
-                                uint256 timestamp
-                            )
-                            external
-                            view
-                            returns(uint8)
+    function viewFlightStatus(string flight, uint256 timestamp)
+    external
+    view
+    returns(uint8)
     {
-            require(flights[flightKey].hasStatus, "Flight status not available");
+        require(flights[flightKey].hasStatus, "Flight status not available");
 
-            bytes32 flightKey = keccak256(abi.encodePacked(flight, timestamp));
-            return flights[flightKey].status;
+        bytes32 flightKey = keccak256(abi.encodePacked(flight, timestamp));
+        return flights[flightKey].status;
     }
 
-
     // Returns array of three non-duplicating integers from 0-9
-    function generateIndexes
-                            (                       
-                                address account         
-                            )
-                            internal
-                            returns(uint8[3])
+    function generateIndexes(address account) internal returns(uint8[3])
     {
         uint8[3] memory indexes;
         indexes[0] = getRandomIndex(account);
-        
+
         indexes[1] = indexes[0];
-        while(indexes[1] == indexes[0]) {
+        while (indexes[1] == indexes[0]) {
             indexes[1] = getRandomIndex(account);
         }
 
         indexes[2] = indexes[1];
-        while((indexes[2] == indexes[0]) || (indexes[2] == indexes[1])) {
+        while ((indexes[2] == indexes[0]) || (indexes[2] == indexes[1])) {
             indexes[2] = getRandomIndex(account);
         }
 
@@ -254,12 +205,7 @@ contract ExerciseC6D {
     }
 
     // Returns array of three non-duplicating integers from 0-9
-    function getRandomIndex
-                            (
-                                address account
-                            )
-                            internal
-                            returns (uint8)
+    function getRandomIndex(address account) internal returns (uint8)
     {
         uint8 maxValue = 10;
 
@@ -275,6 +221,5 @@ contract ExerciseC6D {
 
     /************************************ END: Utility Functions ************************************/
 
-    
-}
 
+}

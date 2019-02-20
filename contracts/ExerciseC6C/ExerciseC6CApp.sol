@@ -14,58 +14,39 @@ contract ExerciseC6CApp {
     address private contractOwner;              // Account used to deploy contract
     ExerciseC6C exerciseC6C;
 
-    modifier requireContractOwner()
-    {
+    modifier requireContractOwner() {
         require(msg.sender == contractOwner, "Caller is not contract owner");
         _;
     }
-    
-    constructor
-                                (
-                                    address dataContract
-                                ) 
-                                public 
-    {
+
+    constructor(address dataContract) public {
         contractOwner = msg.sender;
         exerciseC6C = ExerciseC6C(dataContract);
     }
 
-
-    function calculateBonus
-                            (
-                                uint256 sales
-                            )
-                            internal
-                            pure
-                            returns(uint256)
+    function calculateBonus(uint256 sales)
+    internal
+    pure
+    returns(uint256)
     {
         if (sales < 100) {
             return sales.mul(5).div(100);
-        }
-        else if (sales < 500) {
+        } else if (sales < 500) {
             return sales.mul(7).div(100);
-        }
-        else {
+        } else {
             return sales.mul(10).div(100);
         }
     }
 
-    function addSale
-                                (
-                                    string id,
-                                    uint256 amount
-                                )
-                                external
+    function addSale(string id,uint256 amount)
+    external
     {
-        exerciseC6C.updateEmployee(
-                        id,
-                        amount,
-                        calculateBonus(amount)
-        );
+        exerciseC6C.updateEmployee(id, amount, calculateBonus(amount));
     }
 
 
 }
+
 
 contract ExerciseC6C {
     function updateEmployee(string id, uint256 sales, uint256 bonus) external;
