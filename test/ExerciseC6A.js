@@ -7,7 +7,7 @@ contract('ExerciseC6A', async (accounts) => {
   before('setup contract', async () => {
     config = await Test.Config(accounts)
   })
-
+/*
   it('contract owner can register new user', async () => {
 
     // ARRANGE
@@ -23,17 +23,19 @@ contract('ExerciseC6A', async (accounts) => {
   it('contract owner can pause the contract', async () => {
     // ARRANGE
     let caller = accounts[0]
-    let operationalInit = await config.exerciseC6A.isOperational.call()
+    let operationalInit = await config.exerciseC6A.operational.call()
+    const test = await config.exerciseC6A.userProfiles(caller)
+    console.log(test)
 
     await config.exerciseC6A.setOperatingStatus(false, { from: caller })
-    let operationalPaused = await config.exerciseC6A.isOperational.call()
+    let operationalPaused = await config.exerciseC6A.operational.call()
 
     assert.equal(operationalInit, true, 'Contract not operational at start')
     assert.equal(operationalPaused, false, 'Contract was not paused')
 
     // TEST IF NO LOCKOUT BUG!
     await config.exerciseC6A.setOperatingStatus(true, { from: caller })
-    let operationalBackOn = await config.exerciseC6A.isOperational.call()
+    let operationalBackOn = await config.exerciseC6A.operational.call()
     assert.equal(operationalBackOn, true, 'Lock Out bug')
 
     // ONCE contract is pause, can't register user anymore
@@ -44,33 +46,44 @@ contract('ExerciseC6A', async (accounts) => {
       assert(error.message.includes('Contract is currently not operational', 'Error'))
     }
   })
-/*
+*/
   it('function call is made when multi-party threshold is reached', async () => {
-
-    // ARRANGE
+    // add 5 admins
     let admin1 = accounts[1]
     let admin2 = accounts[2]
     let admin3 = accounts[3]
     let admin4 = accounts[4]
+    let admin5 = accounts[5]
 
-    await config.exerciseC6A.registerUser(admin1, true, {from: config.owner})
-    await config.exerciseC6A.registerUser(admin2, true, {from: config.owner})
-    await config.exerciseC6A.registerUser(admin3, true, {from: config.owner})
-    await config.exerciseC6A.registerUser(admin4, true, {from: config.owner})
+    await config.exerciseC6A.registerUser(admin1, true, { from: config.owner })
+    await config.exerciseC6A.registerUser(admin2, true, { from: config.owner })
+    await config.exerciseC6A.registerUser(admin3, true, { from: config.owner })
+    await config.exerciseC6A.registerUser(admin4, true, { from: config.owner })
+    await config.exerciseC6A.registerUser(admin5, true, { from: config.owner })
+    assert(await config.exerciseC6A.userProfiles.call(admin1))
+    assert(await config.exerciseC6A.userProfiles.call(admin2))
+    assert(await config.exerciseC6A.userProfiles.call(admin3))
+    assert(await config.exerciseC6A.userProfiles.call(admin4))
+    assert(await config.exerciseC6A.userProfiles.call(admin5))
 
-    let startStatus = await config.exerciseC6A.isOperational.call()
-    let changeStatus = !startStatus
+    // Get initial operational status
+    const startStatus = await config.exerciseC6A.operational.call()
+    const changeStatus = !startStatus
+    assert(startStatus)
+    assert(!changeStatus)
 
     // ACT
-    await config.exerciseC6A.setOperatingStatus(changeStatus, {from: admin1})
-    await config.exerciseC6A.setOperatingStatus(changeStatus, {from: admin2})
+    // 1st sig
+    await config.exerciseC6A.setOperatingStatus(changeStatus, { from: admin1 })
+    assert(await config.exerciseC6A.operational.call())
 
-    let newStatus = await config.exerciseC6A.isOperational.call()
+    // 2nd sig
+    await config.exerciseC6A.setOperatingStatus(changeStatus, { from: admin3 })
+    assert(await config.exerciseC6A.operational.call())
 
-    // ASSERT
-    assert.equal(changeStatus, newStatus, "Multi-party call failed")
+    // 3rd sig
+    await config.exerciseC6A.setOperatingStatus(changeStatus, { from: admin5 })
+    assert.equal(await config.exerciseC6A.operational.call(), changeStatus, "Multi-party call failed")
 
   })
-
-*/
 })

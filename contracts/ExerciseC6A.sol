@@ -7,7 +7,8 @@ contract ExerciseC6A {
     /*                                       DATA VARIABLES                                     */
     /********************************************************************************************/
 
-    uint constant M = 2;
+    uint constant M = 3;
+    address[] multiCalls = new address[](0);
 
     struct UserProfile {
         bool isRegistered;
@@ -15,7 +16,7 @@ contract ExerciseC6A {
     }
 
     address private contractOwner;                  // Account used to deploy contract
-    mapping(address => UserProfile) userProfiles;   // Mapping for storing user profiles
+    mapping(address => UserProfile) public userProfiles;   // Mapping for storing user profiles
 
     bool public operational = true; // Blocks all state changes throughout the contract if false
     /********************************************************************************************/
@@ -29,6 +30,7 @@ contract ExerciseC6A {
     */
     constructor() public {
         contractOwner = msg.sender;
+        userProfiles[msg.sender].isAdmin = true;
     }
     /********************************************************************************************/
     /*                                       FUNCTION MODIFIERS                                 */
@@ -52,6 +54,28 @@ contract ExerciseC6A {
     modifier requireIsOperational() {
         require(operational, "Contract is currently not operational");
         _;  // All modifiers require an "_" which indicates where the function body will be added
+    }
+
+    modifier admin() {
+        require(userProfiles[msg.sender].isAdmin == true, "Caller is not admin");
+        _;
+    }
+
+    modifier noDuplicate() {
+        bool isDuplicate = false;
+        for (uint i=0; i < multiCalls.length; i++) {
+            if (multiCalls[i] == msg.sender) {
+                isDuplicate = true;
+                break;
+            }
+        }
+        require(!isDuplicate, "Caller cannot call this function twice");
+        _;
+    }
+
+    modifier differentModeRequest(bool status) {
+        require(status != operational, "Contract already in the state requested");
+        _;
     }
     /********************************************************************************************/
     /*                                       UTILITY FUNCTIONS                                  */
@@ -83,16 +107,23 @@ contract ExerciseC6A {
 
         userProfiles[account] = UserProfile({ isRegistered: true, isAdmin: isAdmin });
     }
-        /**
+    /**
     * @dev Sets contract operations on/off
     *
     * When operational mode is disabled, all write transactions except for this one will fail
     */
+
     function setOperatingStatus(bool mode)
     external
-    requireContractOwner
+    admin
+    noDuplicate
+    differentModeRequest(mode)
     {
-        operational = mode;
+        multiCalls.push(msg.sender);
+        if (multiCalls.length == M) {
+            operational = mode;
+            multiCalls = new address[](0);
+        }
     }
 
 }
