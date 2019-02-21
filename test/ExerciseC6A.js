@@ -13,14 +13,36 @@ contract('ExerciseC6A', async (accounts) => {
     // ARRANGE
     let caller = accounts[0] // This should be config.owner or accounts[0] for registering a new user
     let newUser = config.testAddresses[0]
-
     // ACT
     await config.exerciseC6A.registerUser(newUser, false, { from: caller })
     let result = await config.exerciseC6A.isUserRegistered.call(newUser)
 
     // ASSERT
-    assert.equal(result, true, "Contract owner cannot register new user")
+    assert.equal(result, true, 'Contract owner cannot register new user')
+  })
+  it('contract owner can pause the contract', async () => {
+    // ARRANGE
+    let caller = accounts[0]
+    let operationalInit = await config.exerciseC6A.isOperational.call()
 
+    await config.exerciseC6A.setOperatingStatus(false, { from: caller })
+    let operationalPaused = await config.exerciseC6A.isOperational.call()
+
+    assert.equal(operationalInit, true, 'Contract not operational at start')
+    assert.equal(operationalPaused, false, 'Contract was not paused')
+
+    // TEST IF NO LOCKOUT BUG!
+    await config.exerciseC6A.setOperatingStatus(true, { from: caller })
+    let operationalBackOn = await config.exerciseC6A.isOperational.call()
+    assert.equal(operationalBackOn, true, 'Lock Out bug')
+
+    // ONCE contract is pause, can't register user anymore
+    let newUser2 = config.testAddresses[1]
+    try {
+      await config.exerciseC6A.registerUser(newUser2, false, { from: caller })
+    } catch (error) {
+      assert(error.message.includes('Contract is currently not operational', 'Error'))
+    }
   })
 /*
   it('function call is made when multi-party threshold is reached', async () => {
