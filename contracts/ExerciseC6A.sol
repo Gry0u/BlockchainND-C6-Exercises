@@ -17,7 +17,7 @@ contract ExerciseC6A {
     address private contractOwner;                  // Account used to deploy contract
     mapping(address => UserProfile) userProfiles;   // Mapping for storing user profiles
 
-    bool private operational = true; // Blocks all state changes throughout the contract if false
+    bool public operational = true; // Blocks all state changes throughout the contract if false
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
     /********************************************************************************************/
@@ -69,19 +69,6 @@ contract ExerciseC6A {
     {
         require(account != address(0), "'account' must be a valid address.");
         return userProfiles[account].isRegistered;
-    }
-
-    /**
-    * @dev Get operating status of contract
-    *
-    * @return A bool that is the current operating status
-    */
-    function isOperational()
-    public
-    view
-    returns(bool)
-    {
-        return operational;
     }
     /********************************************************************************************/
     /*                                     SMART CONTRACT FUNCTIONS                             */
