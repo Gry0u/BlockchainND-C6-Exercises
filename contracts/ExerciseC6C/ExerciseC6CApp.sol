@@ -8,7 +8,8 @@ import "../../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 
 contract ExerciseC6CApp {
-    using SafeMath for uint256; // Allow SafeMath functions to be called for all uint256 types (similar to "prototype" in Javascript)
+    // Allow SafeMath functions to be called for all uint256 types (similar to "prototype" in Javascript)
+    using SafeMath for uint256;
 
 
     address private contractOwner;              // Account used to deploy contract
