@@ -10,7 +10,7 @@ contract('ExerciseC6C', async (accounts) => {
 
   it('can authorize contract to call the main controlling contract', async () => {
     await config.exerciseC6C.authorizeContract(config.exerciseC6CApp.address)
-    assert(await config.exerciseC6C.authorizedContracts(config.exerciseC6CApp.address))
+    assert(await config.exerciseC6C.authorizedContracts.call(config.exerciseC6CApp.address))
   })
 
   it('can register Employee, add sale and calculate bonus', async () => {

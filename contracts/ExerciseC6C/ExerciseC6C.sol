@@ -26,7 +26,7 @@ contract ExerciseC6C {
 
     address private contractOwner;              // Account used to deploy contract
     mapping(string => Profile) employees;      // Mapping for storing employees
-    mapping(address => uint256) private authorizedContracts;
+    mapping(address => uint256) public authorizedContracts;
 
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
