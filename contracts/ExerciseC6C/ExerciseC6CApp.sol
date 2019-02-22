@@ -39,7 +39,7 @@ contract ExerciseC6CApp {
         }
     }
 
-    function addSale(string id,uint256 amount)
+    function addSale(string id, uint256 amount)
     external
     {
         exerciseC6C.updateEmployee(id, amount, calculateBonus(amount));

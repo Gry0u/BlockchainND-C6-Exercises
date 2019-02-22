@@ -1,4 +1,3 @@
-
 var ExerciseC6A = artifacts.require('ExerciseC6A')
 var ExerciseC6C = artifacts.require('ExerciseC6C')
 var ExerciseC6CApp = artifacts.require('ExerciseC6CApp')

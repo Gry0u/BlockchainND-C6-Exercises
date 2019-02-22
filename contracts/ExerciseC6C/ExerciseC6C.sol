@@ -119,6 +119,7 @@ contract ExerciseC6C {
 
     function updateEmployee(string id, uint256 sales, uint256 bonus)
     external
+    requireIsCallerAuthorized
     {
         require(employees[id].isRegistered, "Employee is not registered.");
 
