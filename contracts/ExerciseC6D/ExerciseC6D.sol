@@ -13,7 +13,7 @@ contract ExerciseC6D {
     using SafeMath for uint256;
 
 
-    address private contractOwner;                  // Account used to deploy contract
+    address private contractOwner;   // Account used to deploy contract
 
 
     // Incremented to add pseudo-randomness at various points
@@ -34,9 +34,9 @@ contract ExerciseC6D {
 
     // Model for responses from oracles
     struct ResponseInfo {
-        address requester;                              // Account that requested status
-        bool isOpen;                                    // If open, oracle responses are accepted
-        mapping(uint8 => address[]) responses;          // Mapping key is the status code reported
+        address requester;   // Account that requested status
+        bool isOpen;        // If open, oracle responses are accepted
+        mapping(uint8 => address[]) responses;  // Mapping key is the status code reported
                                                         // This lets us group responses and identify
                                                         // the response that majority of the oracles
                                                         // submit
@@ -74,6 +74,15 @@ contract ExerciseC6D {
         require(msg.value >= REGISTRATION_FEE, "Each Oracle must pay a registration to get registered");
         _;
     }
+
+    modifier oracleHasRightIndex(uint8 index) {
+        require(
+            (oracles[msg.sender][0] == index) || (oracles[msg.sender][1] == index) || (oracles[msg.sender][2] == index),
+            "Index does not match oracle request"
+        );
+        _;
+    }
+
     /********************************************************************************************/
     /*                                     SMART CONTRACT FUNCTIONS                             */
     /********************************************************************************************/
@@ -109,18 +118,13 @@ contract ExerciseC6D {
     // Generate a request
     function fetchFlightStatus(string flight, uint256 timestamp) external
     {
-        // Generate a number between 0 - 9 to determine which oracles may respond
-
-        // CODE EXERCISE 2: Replace the hard-coded value of index with a random index based on the calling account
-        uint8 index = 0;  /* Replace code here */
-
+        uint8 index = getRandomIndex(msg.sender);
 
         // Generate a unique key for storing the request
         bytes32 key = keccak256(abi.encodePacked(index, flight, timestamp));
         oracleResponses[key] = ResponseInfo({ requester: msg.sender, isOpen: true });
 
-        // CODE EXERCISE 2: Notify oracles that match the index value that they need to fetch flight status
-        /* Enter code here */
+        emit OracleRequest(index, flight, timestamp);
 
     }
 
@@ -139,37 +143,32 @@ contract ExerciseC6D {
         uint8 statusId
     )
     external
+    oracleHasRightIndex(index)
     {
-        require(
-            (oracles[msg.sender][0] == index) || (oracles[msg.sender][1] == index) || (oracles[msg.sender][2] == index),
-            "Index does not match oracle request"
-        );
-
-
-        // CODE EXERCISE 3: Require that the response is being submitted for a request that is still open
-        bytes32 key = 0; /* Replace 0 with code to generate a key using index, flight and timestamp */
-
-
+        // Generate key
+        bytes32 key = keccak256(abi.encodePacked(index, flight, timestamp));
+        // check if request valid
+        require(oracleResponses[key].isOpen == true, "This request is not open or invalid");
+        // Add response
         oracleResponses[key].responses[statusId].push(msg.sender);
 
         // Information isn't considered verified until at least MIN_RESPONSES
         // oracles respond with the *** same *** information
         if (oracleResponses[key].responses[statusId].length >= MIN_RESPONSES) {
 
-            // CODE EXERCISE 3: Prevent any more responses since MIN_RESPONSE threshold has been reached
-            /* Enter code here */
+            // Prevent any more responses since MIN_RESPONSE threshold has been reached
+            oracleResponses[key].isOpen = false;
 
-            // CODE EXERCISE 3: Announce to the world that verified flight status information is available
-            /* Enter code here */
-
+            // Announce to the world that verified flight status information is available
+            emit FlightStatusInfo(flight, timestamp, statusId, true);
             // Save the flight information for posterity
             bytes32 flightKey = keccak256(abi.encodePacked(flight, timestamp));
             flights[flightKey] = FlightStatus(true, statusId);
         } else {
             // Oracle submitting response but MIN_RESPONSES threshold not yet reached
 
-            // CODE EXERCISE 3: Announce to the world that verified flight status information is available
-            /* Enter code here */
+            // Announce to the world that verified flight status information is available
+            emit FlightStatusInfo(flight, timestamp, statusId, false);
         }
     }
 

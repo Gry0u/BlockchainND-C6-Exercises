@@ -37,7 +37,7 @@ contract('ExerciseC6D', async (accounts) => {
       console.log(`Oracle registered ${result[0]}, ${result[1]}, ${result[2]}`)
     }
   })
-/*
+
   it('can request flight status', async () => {
     // ARRANGE
     let flight = 'ND1309' // Course number
@@ -71,10 +71,9 @@ contract('ExerciseC6D', async (accounts) => {
           //console.log('\nPost', idx, oracleIndexes[idx].toNumber(), flight, timestamp, flightStatus);
         } catch (e) {
           // Enable this when debugging
-          // console.log('\nError', idx, oracleIndexes[idx].toNumber(), flight, timestamp);
+           //console.log('\nError', idx, oracleIndexes[idx].toNumber(), flight, timestamp);
         }
       }
     }
   })
-  */
 })
