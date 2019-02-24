@@ -1,6 +1,7 @@
 var ExerciseC6A = artifacts.require('ExerciseC6A')
 var ExerciseC6C = artifacts.require('ExerciseC6C')
 var ExerciseC6CApp = artifacts.require('ExerciseC6CApp')
+var ExerciseC6D = artifacts.require('ExerciseC6D')
 
 var Config = async function (accounts) {
   // These test addresses are useful when you need to add
@@ -21,13 +22,15 @@ var Config = async function (accounts) {
   let exerciseC6A = await ExerciseC6A.new()
   let exerciseC6C = await ExerciseC6C.new()
   let exerciseC6CApp = await ExerciseC6CApp.new(exerciseC6C.address)
+  let exerciseC6D = await ExerciseC6D.new()
 
   return {
     owner: owner,
     testAddresses: testAddresses,
     exerciseC6A: exerciseC6A,
     exerciseC6C: exerciseC6C,
-    exerciseC6CApp: exerciseC6CApp
+    exerciseC6CApp: exerciseC6CApp,
+    exerciseC6D: exerciseC6D
   }
 }
 

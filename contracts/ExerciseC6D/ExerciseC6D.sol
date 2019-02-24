@@ -1,14 +1,16 @@
 pragma solidity ^0.4.25;
 
-// It's important to avoid vulnerabilities due to numeric overflow bugs
+/* It's important to avoid vulnerabilities due to numeric overflow bugs
 // OpenZeppelin's SafeMath library, when used correctly, protects agains such bugs
-// More info: https://www.nccgroup.trust/us/about-us/newsroom-and-events/blog/2018/november/smart-contract-insecurity-bad-arithmetic/
-
+// More info:
+https://www.nccgroup.trust/us/about-us/newsroom-and-events/blog/2018/november/smart-contract-insecurity-bad-arithmetic/
+*/
 import "../../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 
 contract ExerciseC6D {
-    using SafeMath for uint256; // Allow SafeMath functions to be called for all uint256 types (similar to "prototype" in Javascript)
+    // Allow SafeMath functions to be called for all uint256 types (similar to "prototype" in Javascript)
+    using SafeMath for uint256;
 
 
     address private contractOwner;                  // Account used to deploy contract
@@ -56,13 +58,9 @@ contract ExerciseC6D {
 
     mapping(bytes32 => FlightStatus) flights;
 
-
-
-
     constructor() public {
         contractOwner = msg.sender;
     }
-
     /********************************************************************************************/
     /*                                       FUNCTION MODIFIERS                                 */
     /********************************************************************************************/
@@ -72,22 +70,23 @@ contract ExerciseC6D {
         _;
     }
 
+    modifier paidRegistrationFee() {
+        require(msg.value >= REGISTRATION_FEE, "Each Oracle must pay a registration to get registered");
+        _;
+    }
     /********************************************************************************************/
     /*                                     SMART CONTRACT FUNCTIONS                             */
     /********************************************************************************************/
     /*********************************** BEGIN: Oracle Registration ***********************************/
     // STAGE ONE: ORACLES REGISTER WITH THE SMART CONTRACT
     // Register an oracle with the contract
-    function registerOracle() external payable
+    function registerOracle()
+    external
+    paidRegistrationFee
+    payable
     {
-        // CODE EXERCISE 1: Require registration fee
-        /* Enter code here */
-
-        // CODE EXERCISE 1: Generate three random indexes (range 0-9) using generateIndexes for the calling oracle
-        /* Enter code here */
-
-        // CODE EXERCISE 1: Assign the indexes to the oracle and save to the contract state
-        /* Enter code here */
+        uint8[3] memory indexes = generateIndexes(msg.sender);
+        oracles[msg.sender] = indexes;
     }
 
     function getOracle(address account)
@@ -141,7 +140,10 @@ contract ExerciseC6D {
     )
     external
     {
-        require((oracles[msg.sender][0] == index) || (oracles[msg.sender][1] == index) || (oracles[msg.sender][2] == index), "Index does not match oracle request");
+        require(
+            (oracles[msg.sender][0] == index) || (oracles[msg.sender][1] == index) || (oracles[msg.sender][2] == index),
+            "Index does not match oracle request"
+        );
 
 
         // CODE EXERCISE 3: Require that the response is being submitted for a request that is still open
@@ -210,7 +212,8 @@ contract ExerciseC6D {
         uint8 maxValue = 10;
 
         // Pseudo random number...the incrementing nonce adds variation
-        uint8 random = uint8(uint256(keccak256(abi.encodePacked(blockhash(block.number - nonce++), account))) % maxValue);
+        uint8 random = uint8(
+            uint256(keccak256(abi.encodePacked(blockhash(block.number - nonce++), account))) % maxValue);
 
         if (nonce > 250) {
             nonce = 0;  // Can only fetch blockhashes for last 256 blocks so we adapt
