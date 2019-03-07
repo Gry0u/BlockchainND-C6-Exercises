@@ -67,11 +67,11 @@ contract('ExerciseC6D', async (accounts) => {
           // Check to see if flight status is available
           // Only useful while debugging since flight status is not hydrated until a
           // required threshold of oracles submit a response
-          //let flightStatus = await config.exerciseC6D.viewFlightStatus(flight, timestamp);
-          //console.log('\nPost', idx, oracleIndexes[idx].toNumber(), flight, timestamp, flightStatus);
+          let flightStatus = await config.exerciseC6D.viewFlightStatus(flight, timestamp)
+          console.log('\nPost', idx, oracleIndexes[idx].toNumber(), flight, timestamp, flightStatus)
         } catch (e) {
           // Enable this when debugging
-           //console.log('\nError', idx, oracleIndexes[idx].toNumber(), flight, timestamp);
+          // console.log('\nError', idx, oracleIndexes[idx].toNumber(), flight, timestamp)
         }
       }
     }
